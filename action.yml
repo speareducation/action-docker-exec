@@ -1,0 +1,52 @@
+---
+name: Spear PHPUnit Runner
+description: A GitHub action to run PHPUnit and record test coverage
+branding:
+  icon: check-circle
+  color: green
+runs:
+  using: composite
+  steps:
+
+    - if: inputs.command && inputs.entrypointFile
+      run: echo "SPECIFY ONLY command OR entrypointFile" && false
+      shell: bash
+
+    - id: setup
+      run: |
+        if [[ -n "${{ inputs.command }}" ]]
+        then
+          echo "entrypoint="${{ inputs.command }}" >> ${GITHUB_OUTPUT}
+        elif [[ -n "${{ inputs.entrypointFile }}" ]]
+        then
+          echo "entrypoint=${{ inputs.entrypointFile }}" >> ${GITHUB_OUTPUT}
+        else
+          echo "No command or entrypointFile specified" && false
+        fi
+      shell: bash
+
+    - id: execute
+      run: |
+        set -x
+        if [[ -n "${{ job.container.id }}" ]]
+        then
+          VOLUMES="--volumes-from ${{job.container.id}}"
+        else
+          VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
+        fi
+        . .buildconfig
+        docker run --rm ${VOLUMES} \
+          -w "${GITHUB_WORKSPACE}" \
+          -e SKIP_SECRETS=1 \
+          -e SKIP_SERVICES=1 \
+          --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
+          ${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}
+      shell: bash
+
+inputs:
+  command:
+    description: The command to run in the container (if entrypoint is not used)
+    required: false
+  entrypointFile:
+    description: The entrypoint file to run in the container (if command is not used)
+    required: false
