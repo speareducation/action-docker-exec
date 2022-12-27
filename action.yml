@@ -12,6 +12,8 @@ runs:
       run: echo "SPECIFY ONLY command OR entrypointFile" && false
       shell: bash
 
+    - run: test -f .buildconfig
+
     - id: setup
       run: |
         if [[ -n "${{ inputs.command }}" ]]
@@ -28,13 +30,13 @@ runs:
     - id: execute
       run: |
         set -x
+        . .buildconfig
         if [[ -n "${{ job.container.id }}" ]]
         then
           VOLUMES="--volumes-from ${{job.container.id}}"
         else
           VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
         fi
-        . .buildconfig
         docker run --rm ${VOLUMES} \
           -w "${GITHUB_WORKSPACE}" \
           -e SKIP_SECRETS=1 \
