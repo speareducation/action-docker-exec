@@ -13,6 +13,7 @@ runs:
       shell: bash
 
     - run: test -f .buildconfig
+      shell: bash
 
     - id: setup
       run: |
