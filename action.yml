@@ -21,7 +21,7 @@ runs:
         then
           echo "${{ inputs.command }}" > ${GITHUB_WORKSPACE}/action-entrypoint.sh
           chmod +x ${GITHUB_WORKSPACE}/action-entrypoint.sh
-          echo "entrypoint=./action-entrypoint.sh" >> ${GITHUB_OUTPUT}
+          echo "entrypoint=${GITHUB_WORKSPACE}/action-entrypoint.sh" >> ${GITHUB_OUTPUT}
         elif [[ -n "${{ inputs.entrypointFile }}" ]]
         then
           echo "entrypoint=${{ inputs.entrypointFile }}" >> ${GITHUB_OUTPUT}
