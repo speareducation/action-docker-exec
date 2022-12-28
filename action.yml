@@ -1,6 +1,6 @@
 ---
-name: Spear PHPUnit Runner
-description: A GitHub action to run PHPUnit and record test coverage
+name: Spear Docker Exec Runner
+description: A GitHub action to run actions inside of the project's docker container
 branding:
   icon: check-circle
   color: green
