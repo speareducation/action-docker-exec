@@ -33,11 +33,12 @@ runs:
         . .buildconfig
         if [[ -n "${{ job.container.id }}" ]]
         then
-          VOLUMES="--volumes-from ${{job.container.id}}"
+          VOLUMES="--volumes-from ${{ job.container.id }}"
         else
           VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
         fi
         docker run --rm ${VOLUMES} \
+          --network '${{ inputs.network }}' \
           -w "${GITHUB_WORKSPACE}" \
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
@@ -52,3 +53,7 @@ inputs:
   entrypointFile:
     description: The entrypoint file to run in the container (if command is not used)
     required: false
+  network:
+    description: The docker network to run in
+    required: false
+    default: ${{ job.container.network }}
