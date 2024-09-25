@@ -31,6 +31,18 @@ runs:
         fi
       shell: bash
 
+    - id: docker-image
+      name: Evaluate the docker image & tag to use
+      run: |
+        if [[ -n "${{ inputs.dockerImage }}" ]]
+        then
+          echo "value=${{ inputs.dockerImage }}" >> ${GITHUB_OUTPUT}
+        else
+          . .buildconfig
+          echo "value="${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}" >> ${GITHUB_OUTPUT}
+        fi
+      shell: bash
+
     - id: execute
       run: |
         set -x
@@ -47,13 +59,16 @@ runs:
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
           --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
-          ${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}
+          ${{ steps.docker-image.outputs.value }}
       shell: bash
 
     - run: rm action-entrypoint.sh || true
       shell: bash
 
 inputs:
+  dockerImage:
+    description: The docker image to run the command in. Defaults to reading the .buildconfig 
+    required: false
   command:
     description: The command to run in the container (if entrypoint is not used)
     required: false
