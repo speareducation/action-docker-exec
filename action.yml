@@ -31,17 +31,6 @@ runs:
         fi
       shell: bash
 
-    - id: docker-image
-      name: Evaluate the docker image & tag to use
-      run: |
-        if [[ -n "${{ inputs.dockerImage }}" ]]
-        then
-          echo "value=${{ inputs.dockerImage }}" >> ${GITHUB_OUTPUT}
-        else
-          echo "value=." >> ${GITHUB_OUTPUT}
-        fi
-      shell: bash
-
     - id: execute
       run: |
         set -x
@@ -53,13 +42,12 @@ runs:
           VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
         fi
         docker run --rm ${VOLUMES} \
-          --env-file .buildconfig \
           --network '${{ inputs.network }}' \
           -w "${GITHUB_WORKSPACE}" \
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
           --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
-          ${{ steps.docker-image.outputs.value }}
+          "${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}"
       shell: bash
 
     - run: rm action-entrypoint.sh || true
