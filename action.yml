@@ -38,8 +38,7 @@ runs:
         then
           echo "value=${{ inputs.dockerImage }}" >> ${GITHUB_OUTPUT}
         else
-          . .buildconfig
-          echo "value="${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}" >> ${GITHUB_OUTPUT}
+          echo "value=." >> ${GITHUB_OUTPUT}
         fi
       shell: bash
 
@@ -54,6 +53,7 @@ runs:
           VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
         fi
         docker run --rm ${VOLUMES} \
+          --env-file .buildconfig \
           --network '${{ inputs.network }}' \
           -w "${GITHUB_WORKSPACE}" \
           -e SKIP_SECRETS=1 \
