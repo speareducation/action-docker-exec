@@ -12,7 +12,8 @@ runs:
       run: echo "SPECIFY ONLY command OR entrypointFile" && false
       shell: bash
 
-    - run: test -f ${GITHUB_WORKSPACE}/${{ inputs.workingDirectory }}/.buildconfig
+    - run: test -f .buildconfig
+      working-directory: ${{ inputs.workingDirectory }}
       shell: bash
 
     - id: setup
@@ -37,15 +38,15 @@ runs:
       run: |
         set -x
         . .buildconfig
+        WORKING_DIR="$(pwd)"
+        VOLUMES="-v ${WORKING_DIR}:/${WORKING_DIR}:rw"
         if [[ -n "${{ job.container.id }}" ]]
         then
-          VOLUMES="--volumes-from ${{ job.container.id }}"
-        else
-          VOLUMES="-v $(pwd):/action-docker-exec:rw"
+          VOLUMES="--volumes-from ${{ job.container.id }} ${VOLUMES}"
         fi
         docker run --rm ${VOLUMES} \
           --network '${{ inputs.network }}' \
-          -w "/action-docker-exec" \
+          -w "${WORKING_DIR}" \
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
           --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
