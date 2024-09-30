@@ -25,6 +25,7 @@ runs:
           echo "${{ inputs.command }}" >> action-entrypoint.sh
           chmod +x action-entrypoint.sh
           echo "entrypoint=action-entrypoint.sh" >> ${GITHUB_OUTPUT}
+          echo "ENTRYPOINT: $(pwd)/action-entrypoint.sh"
         elif [[ -n "${{ inputs.entrypointFile }}" ]]
         then
           echo "entrypoint=${{ inputs.entrypointFile }}" >> ${GITHUB_OUTPUT}
@@ -32,6 +33,9 @@ runs:
           echo "No command or entrypointFile specified" && false
         fi
       shell: bash
+
+    - id: debug
+      run: pwd && ls -la
 
     - id: execute
       working-directory: ${{ inputs.workingDirectory }}
