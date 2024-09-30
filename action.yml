@@ -45,10 +45,10 @@ runs:
         . .buildconfig
         WORKING_DIR="$(pwd)"
         VOLUMES="-v ${WORKING_DIR}:${WORKING_DIR}:rw"
-        if [[ -n "${{ job.container.id }}" ]]
-        then
-          VOLUMES="${VOLUMES} --volumes-from ${{ job.container.id }}"
-        fi
+        # if [[ -n "${{ job.container.id }}" ]]
+        # then
+        #   VOLUMES="${VOLUMES} --volumes-from ${{ job.container.id }}"
+        # fi
         docker run --rm ${VOLUMES} \
           --network '${{ inputs.network }}' \
           -w "${WORKING_DIR}" \
