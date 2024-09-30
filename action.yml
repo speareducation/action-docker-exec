@@ -36,6 +36,7 @@ runs:
 
     - id: debug
       run: pwd && ls -la
+      working-directory: ${{ inputs.workingDirectory }}
       shell: bash
 
     - id: execute
