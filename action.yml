@@ -12,11 +12,12 @@ runs:
       run: echo "SPECIFY ONLY command OR entrypointFile" && false
       shell: bash
 
-    - run: test -f .buildconfig
+    - run: test -f ${{ inputs.workingDirectory }}/.buildconfig
       shell: bash
 
     - id: setup
       run: |
+        cd ${{ inputs.workingDirectory }} || exit $?
         if [[ -n "${{ inputs.command }}" ]]
         then
           echo "#!/bin/sh" > ${GITHUB_WORKSPACE}/action-entrypoint.sh
@@ -33,6 +34,7 @@ runs:
 
     - id: execute
       run: |
+        cd ${{ inputs.workingDirectory }} || exit $?
         set -x
         . .buildconfig
         if [[ -n "${{ job.container.id }}" ]]
@@ -50,7 +52,7 @@ runs:
           "${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}"
       shell: bash
 
-    - run: rm action-entrypoint.sh || true
+    - run: rm ${{ inputs.workingDirectory }}/action-entrypoint.sh || true
       shell: bash
 
 inputs:
@@ -67,3 +69,7 @@ inputs:
     description: The docker network to run in
     required: false
     default: ${{ job.container.network }}
+  workingDirectory:
+    description: The working directory to run the command in
+    required: false
+    default: .
