@@ -24,8 +24,7 @@ runs:
           echo "#!/bin/sh" > action-entrypoint.sh
           echo "${{ inputs.command }}" >> action-entrypoint.sh
           chmod +x action-entrypoint.sh
-          echo "entrypoint=./action-entrypoint.sh" >> ${GITHUB_OUTPUT}
-          echo "ENTRYPOINT: $(pwd)/action-entrypoint.sh"
+          echo "entrypoint=$(pwd)/action-entrypoint.sh" | tee -a ${GITHUB_OUTPUT}
         elif [[ -n "${{ inputs.entrypointFile }}" ]]
         then
           echo "entrypoint=${{ inputs.entrypointFile }}" >> ${GITHUB_OUTPUT}
@@ -48,7 +47,7 @@ runs:
         VOLUMES="-v ${WORKING_DIR}:${WORKING_DIR}:rw"
         if [[ -n "${{ job.container.id }}" ]]
         then
-          VOLUMES="--volumes-from ${{ job.container.id }} ${VOLUMES}"
+          VOLUMES="${VOLUMES} --volumes-from ${{ job.container.id }}"
         fi
         docker run --rm ${VOLUMES} \
           --network '${{ inputs.network }}' \
