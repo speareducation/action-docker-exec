@@ -16,8 +16,8 @@ runs:
       shell: bash
 
     - id: setup
+      working-directory: ${{ inputs.workingDirectory }}
       run: |
-        cd ${GITHUB_WORKSPACE}/${{ inputs.workingDirectory }}
         if [[ -n "${{ inputs.command }}" ]]
         then
           echo "#!/bin/sh" > action-entrypoint.sh
@@ -33,26 +33,27 @@ runs:
       shell: bash
 
     - id: execute
+      working-directory: ${{ inputs.workingDirectory }}
       run: |
-        cd ${GITHUB_WORKSPACE}/${{ inputs.workingDirectory }}
         set -x
         . .buildconfig
         if [[ -n "${{ job.container.id }}" ]]
         then
           VOLUMES="--volumes-from ${{ job.container.id }}"
         else
-          VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
+          VOLUMES="-v $(pwd):/action-docker-exec:rw"
         fi
         docker run --rm ${VOLUMES} \
           --network '${{ inputs.network }}' \
-          -w "${GITHUB_WORKSPACE}" \
+          -w "/action-docker-exec" \
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
           --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
           "${DOCKER_REGISTRY}/${DOCKER_BASE_IMAGE_NAME}:${DOCKER_BASE_IMAGE_VER}"
       shell: bash
 
-    - run: rm "${GITHUB_WORKSPACE}/${{ inputs.workingDirectory }}/action-entrypoint.sh" || true
+    - run: rm action-entrypoint.sh || true
+      working-directory: ${{ inputs.workingDirectory }}
       shell: bash
 
 inputs:
