@@ -24,7 +24,7 @@ runs:
           echo "#!/bin/sh" > action-entrypoint.sh
           echo "${{ inputs.command }}" >> action-entrypoint.sh
           chmod +x action-entrypoint.sh
-          echo "entrypoint=$(pwd)/action-entrypoint.sh" | tee -a ${GITHUB_OUTPUT}
+          echo "entrypoint=action-entrypoint.sh" | tee -a ${GITHUB_OUTPUT}
         elif [[ -n "${{ inputs.entrypointFile }}" ]]
         then
           echo "entrypoint=${{ inputs.entrypointFile }}" >> ${GITHUB_OUTPUT}
@@ -33,25 +33,19 @@ runs:
         fi
       shell: bash
 
-    - id: debug
-      run: pwd && ls -la
-      working-directory: ${{ inputs.workingDirectory }}
-      shell: bash
-
     - id: execute
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         set -x
         . .buildconfig
-        WORKING_DIR="$(pwd)"
-        VOLUMES="-v ${WORKING_DIR}:${WORKING_DIR}:rw"
-        # if [[ -n "${{ job.container.id }}" ]]
-        # then
-        #   VOLUMES="${VOLUMES} --volumes-from ${{ job.container.id }}"
-        # fi
+        if [[ -n "${{ job.container.id }}" ]]
+        then
+          VOLUMES="--volumes-from ${{ job.container.id }}"
+        else
+          VOLUMES="-v $(pwd):${GITHUB_WORKSPACE}:rw"
+        fi
         docker run --rm ${VOLUMES} \
           --network '${{ inputs.network }}' \
-          -w "${WORKING_DIR}" \
+          -w "${GITHUB_WORKSPACE}/${{ inputs.workingDirectory }}" \
           -e SKIP_SECRETS=1 \
           -e SKIP_SERVICES=1 \
           --entrypoint="${{ steps.setup.outputs.entrypoint }}" \
