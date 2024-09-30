@@ -39,7 +39,7 @@ runs:
         set -x
         . .buildconfig
         WORKING_DIR="$(pwd)"
-        VOLUMES="-v ${WORKING_DIR}:/${WORKING_DIR}:rw"
+        VOLUMES="-v ${WORKING_DIR}:${WORKING_DIR}:rw"
         if [[ -n "${{ job.container.id }}" ]]
         then
           VOLUMES="--volumes-from ${{ job.container.id }} ${VOLUMES}"
