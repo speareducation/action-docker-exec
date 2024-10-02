@@ -13,7 +13,7 @@ runs:
       shell: bash
 
     - run: |
-        echo -e "\033[1;36mRunning action-docker-exec with .buildconfig:\033[0m"
+        echo -e "\033[1;36mRunning action-docker-exec command '${{ inputs.command }}'\033[0m"
         echo -e "\033[36mWorking Directory: ${{ inputs.workingDirectory }}\033[0m"
         echo -e "\033[36m$(cat .buildconfig)\033[0m"
         test -f .buildconfig
