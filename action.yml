@@ -74,7 +74,3 @@ inputs:
     description: The docker network to run in
     required: false
     default: ${{ job.container.network }}
-  workingDirectory:
-    description: The working directory relative to $GITHUB_WORKSPACE
-    required: false
-    default: .
